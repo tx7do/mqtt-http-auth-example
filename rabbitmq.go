@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
 
 // RegisterRabbitmqRouter 注册Rabbitmq路由
 func RegisterRabbitmqRouter(r *gin.Engine) {
 	// 认证
-	r.POST("/auth/user", handleRabbitmqUser)
+	r.POST("/rb/auth/user", handleRabbitmqUser)
 	// 权鉴
-	r.POST("/auth/vhost", handleRabbitmqVhost)
-	r.POST("/auth/resource", handleRabbitmqResource)
-	r.POST("/auth/topic", handleRabbitmqTopic)
+	r.POST("/rb/auth/vhost", handleRabbitmqVhost)
+	r.POST("/rb/auth/resource", handleRabbitmqResource)
+	r.POST("/rb/auth/topic", handleRabbitmqTopic)
 }
 
 //rabbitmq_mqtt插件 提供MQTT协议的支持

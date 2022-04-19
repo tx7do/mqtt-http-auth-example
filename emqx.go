@@ -8,6 +8,7 @@ import (
 // RegisterEmqxRouter 注册emqx路由
 func RegisterEmqxRouter(r *gin.Engine) {
 	r.POST("/emqx/auth", handleEmqxAuth)
+	r.POST("/emqx/acl", handleEmqxACL)
 
 	r.POST("/emqx/hook", handleEmqxHook)
 }
@@ -16,10 +17,15 @@ func RegisterEmqxRouter(r *gin.Engine) {
 // vi etc/plugins/emqx_auth_http.conf
 // emqx_auth_http 插件同时包含 ACL 功能，可通过注释禁用。
 //
-// auth.http.auth_req = http://127.0.0.1:8100/emqx/auth
+// auth.http.auth_req = http://host.docker.internal:7100/emqx/auth
 // auth.http.auth_req_method = POST
 // auth.http.auth_req_content_type = application/json
 // auth.http.auth_req.params = clientid=%c,username=%u,password=%P,ipaddress=%a
+//
+// auth.http.acl_req.url = http://host.docker.internal:7100/emqx/acl
+// auth.http.acl_req.method = post
+// auth.http.acl_req.headers.content-type = application/x-www-form-urlencoded
+// auth.http.acl_req.params = access=%A,username=%u,clientid=%c,ipaddr=%a,topic=%t,mountpoint=%m
 //
 // 认证失败：API 返回非 200 状态码
 // 认证成功：API 返回 200 状态码
@@ -40,13 +46,29 @@ func handleEmqxAuth(c *gin.Context) {
 	c.String(200, "")
 }
 
+func handleEmqxACL(c *gin.Context) {
+	var form struct {
+		Username  string `form:"username"`
+		Password  string `form:"password"`
+		ClientId  string `form:"clientid"`
+		IpAddress string `form:"ipaddress"`
+		Protocol  string `form:"protocol"`
+		Topic     string `form:"topic"`
+		Access    string `form:"access"`
+	}
+	BindAndValid(c, &form)
+	fmt.Println("handleEmqxACL", form)
+	c.String(200, "")
+}
+
 // 启用插件: emqx_web_hook
 //
 // EMQ X 并不关心 Web 服务的返回
 //
 // vi etc/plugins/emqx_web_hook.conf
 
-// web.hook.url = http://host.docker.internal:8100/emqx/hook
+// web.hook.url = http://host.docker.internal:7100/emqx/hook
+// web.hook.headers.content-type = application/json
 // web.hook.rule.client.connected.1     = {"action": "on_client_connected"}
 // web.hook.rule.client.disconnected.1  = {"action": "on_client_disconnected"}
 

@@ -64,7 +64,7 @@ func runHttpServer() {
 	RegisterEmqxRouter(r)
 	RegisterRabbitmqRouter(r)
 
-	_ = r.Run(":8100")
+	_ = r.Run(":7100")
 }
 
 func main() {
